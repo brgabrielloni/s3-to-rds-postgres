@@ -7,22 +7,34 @@
 
 ## 📌 Descripción
 
-Este proyecto en Python permite subir archivos a Amazon S3 utilizando la librería **boto3**. 
-Actualmente, el proyecto está diseñado para trabajar con archivos en formato **CSV**. 
-La función load_csv ubicada en pipeline/load.py se encarga de: 
-- Recibir como parámetro la **ruta del archivo** a cargar (no está limitada a una ruta fija).
-- Leer el archivo CSV utilizando pandas y devolver un **DataFrame** que será luego procesado 
-  por los siguientes pasos del pipeline (transformación, limpieza, guardado). 
-  Este diseño modular permite desacoplar el origen del archivo del proceso de transformación. 
-  Aunque inicialmente sólo se admite el formato CSV, la función está estructurada de forma que
-  puede extenderse en el futuro para soportar otros tipos de archivos coomo JSON, Excel, etc,
-  con mínimos cambios.
+Este proyecto en Python implementa un pipeline ETL que permite leer archivos en formato CSV almacenados en Amazon S3, aplicar transformaciones de limpieza con pandas, y finalmente guardar los datos en una base de datos PostgreSQL alojada en Amazon RDS. 
+El flujo principal es el siguiente:
+- Conectarse a un bucket en S3 y descargar el archivo CSV indicado.
+- Leer el archivo en un DataFrame de pandas para su procesamiento.
+- Aplicar transformaciones de limpieza y normalización de datos (fechas, valores nulos, campos obligatorios).
+- Insertar los registros en una tabla de Postgres en RDS, con manejo de logs para monitorear cada paso.
 
 Buenas prácticas utilizadas:
 
-- Uso de entornos virtuales
-- Manejo seguro de credenciales con archivo `.env`
-- Código limpio y modular
+- Separación de configuración y credenciales:
+    Uso de variables de entorno (archivo .env) y módulo settings.py para no exponer claves sensibles en el código.
+- Logging centralizado:
+    Uso de utils/logger.py para registrar cada paso del pipeline, con distintos niveles (INFO, ERROR, EXCEPTION), lo que facilita la depuración y monitoreo.
+- Validación de datos antes de la carga:
+    Normalización de fechas, reemplazo de valores nulos y control de tipos de datos para asegurar consistencia antes de insertar en la base.
+- Definición manual de esquemas y constraints en la BD:
+    Tablas creadas con claves primarias y restricciones NOT NULL, garantizando integridad de datos y evitando depender de la creación automática de pandas.to_sql.
+- Estructura modular del proyecto:
+    División clara en carpetas (config/, pipeline/, utils/) para mantener un código más ordenado y escalable.
+- Control de versiones con Git/GitHub:
+    Uso de .gitignore para excluir archivos sensibles (.env, venv/, __pycache__/), manteniendo el repo limpio y seguro.
+- Documentación del proyecto:
+    README con descripción, instalación, uso y contacto, lo que facilita la comprensión y reutilización del proyecto por terceros.
+
+Mejoras futuras:
+
+- Automatización con AWS Lambda + S3 Triggers.
+- Orquestación con Apache Airflow o AWS Step Functions.
 
 ## 📁 Estructura del proyecto: 
 
@@ -38,13 +50,13 @@ s3-to_postgres_rds/
 ├── requirements.txt             # Lista de dependencias necesarias (pip install -r requirements.txt)
 │
 ├── config/
-│   └── settings.py              # Configuración del proyecto (AWS, DB)
+│   └── settings.py              # Configuración del proyecto
 │
 ├── bd/
 │   └──ddl.sql                   # Scripts SQL para creación de esquemas y tablas en Postgres RDS
 │
 ├── pipeline/
-│   ├── read.py                  # Funciones para leer datos desde S3
+│   ├── read.py                  # Funciones para leer datos de archivos almacenados en S3
 │   ├── save.py                  # Funciones para guardar los datos procesados en Postgres RDS
 │   └── transform.py             # Funciones de limpieza y transformación de datos
 │
@@ -91,7 +103,7 @@ pip install -r requirements.txt
 
 ### 3. Configurar archivo .env:
 
-Crea un archivo llamado .env en la raíz del proyecto con tus credenciales:
+Crea un archivo llamado .env en la raíz del proyecto con tus credenciales de AWS y BD de RDS:
 
 # BUCKET DE S3 de AWS:
 - AWS_ACCESS_KEY = your_access_key
@@ -99,9 +111,7 @@ Crea un archivo llamado .env en la raíz del proyecto con tus credenciales:
 - AWS_REGION = your_region
 - BUCKET_NAME = your_bucket_name
 
-A su vez, debes guardar en el archivo los parámetros de conexión a tu BD de Postgres en RDS:
-
-# POSTGRES:
+# POSTGRES RDS:
 - DB_HOST = your_database_host
 - DB_USER= your_databse_user
 - DB_PASS= your_database_password
@@ -112,7 +122,7 @@ A su vez, debes guardar en el archivo los parámetros de conexión a tu BD de Po
 
 ## 🚀 Uso
 
-Para guardar los datos de tus archivos CSV de S3 en tabla de Postgres RDS, simplemente ejecutá el script principal:
+Para guardar los datos de tus archivos CSV de S3 en tablaS de Postgres RDS, simplemente ejecutá el script principal:
 
 python main.py
 
