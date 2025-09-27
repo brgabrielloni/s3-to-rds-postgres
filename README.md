@@ -41,7 +41,7 @@ Mejoras futuras:
 La estructura del proyecto es la siguiente: 
 
 ```text
-s3-to_postgres_rds/
+s3_to_postgres_rds/
 │
 ├── .env                         # Variables de entorno (credenciales)
 ├── .gitignore                   # Archivos y carpetas excluidos del control de versiones
