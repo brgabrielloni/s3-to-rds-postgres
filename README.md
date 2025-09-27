@@ -29,7 +29,7 @@ Buenas prácticas utilizadas:
 La estructura del proyecto es la siguiente: 
 
 ```text
-Proyecto-S3-Uploader/
+s3-to_postgres_rds/
 │
 ├── .env                         # Variables de entorno (credenciales)
 ├── .gitignore                   # Archivos y carpetas excluidos del control de versiones
@@ -38,17 +38,14 @@ Proyecto-S3-Uploader/
 ├── requirements.txt             # Lista de dependencias necesarias (pip install -r requirements.txt)
 │
 ├── config/
-│   └── settings.py              # Configuraciones generales del proyecto (paths, constantes, etc.)
+│   └── settings.py              # Configuración del proyecto (AWS, DB)
 │
-├── data/
-│   ├── input/
-│   │   └── pacientes_crudo.csv  # Archivo de datos original (sin procesar)
-│   └── output/
-│       └── pacientes_procesado.csv  # Archivo de datos limpio y transformado
+├── bd/
+│   └──ddl.sql                   # Scripts SQL para creación de esquemas y tablas en Postgres RDS
 │
 ├── pipeline/
-│   ├── load.py                  # Funciones para cargar los datos desde CSV
-│   ├── save.py                  # Funciones para guardar los datos procesados y/o subir a S3
+│   ├── read.py                  # Funciones para leer datos desde S3
+│   ├── save.py                  # Funciones para guardar los datos procesados en Postgres RDS
 │   └── transform.py             # Funciones de limpieza y transformación de datos
 │
 ├── utils/
@@ -62,7 +59,7 @@ Proyecto-S3-Uploader/
 ## ✅ Requisitos
 
 - Python 3.8 o superior  
-- Credenciales de AWS configuradas en un archivo `.env`  
+- Credenciales de AWS y BD configuradas en un archivo `.env`  
 - Entorno virtual para instalar las dependencias  
 
 ---
@@ -94,18 +91,28 @@ pip install -r requirements.txt
 
 ### 3. Configurar archivo .env:
 
-Crea un archivo llamado .env en la raíz del proyecto con tus credenciales de AWS:
+Crea un archivo llamado .env en la raíz del proyecto con tus credenciales:
 
+# BUCKET DE S3 de AWS:
 - AWS_ACCESS_KEY = your_access_key
 - AWS_SECRET_ACCESS_KEY = your_secret_key
 - AWS_REGION = your_region
 - BUCKET_NAME = your_bucket_name
 
+A su vez, debes guardar en el archivo los parámetros de conexión a tu BD de Postgres en RDS:
+
+# POSTGRES:
+- DB_HOST = your_database_host
+- DB_USER= your_databse_user
+- DB_PASS= your_database_password
+- DB_PORT= your_database_port
+- DB_TABLE= your_database_table_name
+
 ---
 
 ## 🚀 Uso
 
-Para subir archivos a S3, simplemente ejecutá el script principal:
+Para guardar los datos de tus archivos CSV de S3 en tabla de Postgres RDS, simplemente ejecutá el script principal:
 
 python main.py
 
