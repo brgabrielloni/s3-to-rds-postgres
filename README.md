@@ -105,13 +105,13 @@ pip install -r requirements.txt
 
 Crea un archivo llamado .env en la raíz del proyecto con tus credenciales de AWS y BD de RDS:
 
-## BUCKET DE S3 de AWS:
+BUCKET DE S3 de AWS:
 - AWS_ACCESS_KEY = your_access_key
 - AWS_SECRET_ACCESS_KEY = your_secret_key
 - AWS_REGION = your_region
 - BUCKET_NAME = your_bucket_name
 
-## POSTGRES RDS:
+POSTGRES RDS:
 - DB_HOST = your_database_host
 - DB_USER= your_databse_user
 - DB_PASS= your_database_password
